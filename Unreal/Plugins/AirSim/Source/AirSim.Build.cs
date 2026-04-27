@@ -48,9 +48,10 @@ public class AirSim : ModuleRules
         PublicDefinitions.Add("HMD_MODULE_INCLUDED=0");
 
         PublicIncludePaths.Add(Path.Combine(AirLibPath, "include"));
-        PublicIncludePaths.Add(Path.Combine(AirLibPath, "deps", "eigen3"));
+        string eigenPath = RunMiseWhere("conan:eigen");
+        PublicIncludePaths.Add(Path.Combine(eigenPath, "include", "eigen3"));
         PublicIncludePaths.Add(Path.Combine(AirLibPath, "deps", "msgpack", "include"));
-        string nlohmannPath = RunMiseWhere("github:nlohmann/json");
+        string nlohmannPath = RunMiseWhere("conan:nlohmann_json");
         PublicIncludePaths.Add(Path.Combine(nlohmannPath, "include"));
 
         LoadAirSimDependency(Target, "MavLinkCom", "MavLinkCom");

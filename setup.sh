@@ -76,22 +76,7 @@ else
     echo "### Not downloading high-poly car asset (--no-full-poly-car)."
 fi
 
-echo "Installing Eigen library..."
-if [ ! -d "AirLib/deps/eigen3" ]; then
-    echo "Downloading Eigen 5.0.1 via conan..."
-    conan install --requires="eigen/5.0.1" --output-folder=/tmp/conan_eigen 2>&1
-    eigen_cache=$(find ~/.conan2/p -path "*/include/eigen3/Eigen" -type d 2>/dev/null | head -1)
-    if [ -n "$eigen_cache" ]; then
-        mkdir -p AirLib/deps/eigen3
-        cp -r "$eigen_cache" AirLib/deps/eigen3/
-        echo "Eigen installed from conan cache"
-    else
-        echo "ERROR: Could not find Eigen in conan cache"
-        exit 1
-    fi
-else
-    echo "Eigen is already installed."
-fi
+echo "Eigen is managed by mise (conan:eigen). Run 'mise install' to install."
 
 popd >/dev/null
 

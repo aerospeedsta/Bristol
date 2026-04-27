@@ -6,7 +6,7 @@ macro(CommonTargetLink)
 endmacro(CommonTargetLink)
 
 macro(IncludeEigen)
-    include_directories(${AIRSIM_ROOT}/AirLib/deps/eigen3)
+    include_directories(${EIGEN_INCLUDES})
 endmacro(IncludeEigen)
 
 macro(AddExecutableSource)
@@ -33,6 +33,7 @@ macro(CommonSetup)
 
     include("${AIRSIM_ROOT}/cmake/zenoh.cmake")
     include("${AIRSIM_ROOT}/cmake/nlohmann.cmake")
+    include("${AIRSIM_ROOT}/cmake/eigen.cmake")
 
     string(TOLOWER "${CMAKE_BUILD_TYPE}" BUILD_TYPE)
 

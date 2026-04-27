@@ -2,10 +2,12 @@
 cmake = "latest"
 "github:eclipse-zenoh/zenoh-c" = "latest"
 "github:eclipse-zenoh/zenoh-cpp" = "latest"
-"github:nlohmann/json" = "latest"
 "pipx:conan" = "latest"
 python = "3.12"
 uv = "latest"
+"conan:eigen" = "5.0.1"
+"conan:nlohmann_json" = "3.11.3"
+"conan:msgpack-c" = "6.1.0"
 
 [env]
 PROJECT_ROOT = "{{config_root}}"

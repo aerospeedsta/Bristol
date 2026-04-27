@@ -1,7 +1,0 @@
-[requires]
-eigen/5.0.1
-msgpack-c/4.1.0
-nlohmann_json/3.11.3
-
-[generators]
-PkgConfigDeps
