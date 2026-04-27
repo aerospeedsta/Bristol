@@ -25,29 +25,23 @@ endmacro(SetupConsoleBuild)
 
 macro(CommonSetup)
     find_package(Threads REQUIRED)
-    find_path(AIRSIM_ROOT NAMES AirSim.sln PATHS ".." "../.." "../../.." "../../../.." "../../../../.." "../../../../../.." REQUIRED)
+    find_path(AIRSIM_ROOT NAMES build.sh PATHS ".." "../.." "../../.." "../../../.." "../../../../.." "../../../../../.." REQUIRED)
 
-    #setup output paths
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output/lib)
     SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/output/bin)
     SET(LIBRARY_OUTPUT_PATH ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 
-    #setup include and lib for rpclib which will be referenced by other projects
-    set(RPCLIB_VERSION_FOLDER rpclib-2.3.0)
-    set(RPC_LIB_INCLUDES " ${AIRSIM_ROOT}/external/rpclib/${RPCLIB_VERSION_FOLDER}/include")
-    #name of .a file with lib prefix
-    set(RPC_LIB rpc)
+    include("${AIRSIM_ROOT}/cmake/zenoh.cmake")
+    include("${AIRSIM_ROOT}/cmake/nlohmann.cmake")
 
-    #what is our build type debug or release?
-    string( TOLOWER "${CMAKE_BUILD_TYPE}" BUILD_TYPE)
+    string(TOLOWER "${CMAKE_BUILD_TYPE}" BUILD_TYPE)
 
     IF(UNIX)
         set(RPC_LIB_DEFINES "-D MSGPACK_PP_VARIADICS_MSVC=0")
-        set(BUILD_TYPE "linux")
         set(CMAKE_CXX_STANDARD 17)
 
         if (APPLE)
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wstrict-aliasing -D__CLANG__")
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wstrict-aliasing -D__CLANG__ -DMSGPACK_DISABLE_LEGACY_NIL -DZENOHCXX_ZENOHC")
         else ()
             set(CMAKE_CXX_FLAGS "\
                 -Wall -Wextra \
@@ -58,21 +52,22 @@ macro(CommonSetup)
 
             if (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
                 set(CMAKE_CXX_FLAGS "-stdlib=libc++ -Wno-documentation -Wno-unknown-warning-option ${CMAKE_CXX_FLAGS}")
-                find_package(LLVM REQUIRED CONFIG)
-                set(CXX_EXP_LIB "-L${LLVM_LIBRARY_DIRS} -lstdc++fs -ferror-limit=10")
-            else()
-                set(CXX_EXP_LIB "-lstdc++fs -fmax-errors=10 -Wnoexcept -Wstrict-null-sentinel")
+                find_package(LLVM QUIET CONFIG)
             endif ()
         endif ()
 
-        set(BUILD_PLATFORM "x64")
+        if(APPLE AND CMAKE_SYSTEM_PROCESSOR MATCHES "arm64|aarch64")
+            set(BUILD_PLATFORM "arm64")
+        else()
+            set(BUILD_PLATFORM "x64")
+        endif()
+
         set(CMAKE_POSITION_INDEPENDENT_CODE ON)
         if (CMAKE_BUILD_TYPE MATCHES Release)
             set(CMAKE_CXX_FLAGS "-O3 ${CMAKE_CXX_FLAGS}")
         endif ()
 
     ELSE()
-        #windows cmake build is experimental
         set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_WIN32_WINNT=0x0600 /GS /W4 /wd4100 /wd4505 /wd4820 /wd4464 /wd4514 /wd4710 /wd4571 /Zc:wchar_t /ZI /Zc:inline /fp:precise /D_SCL_SECURE_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /D_UNICODE /DUNICODE /WX- /Zc:forScope /Gd /EHsc ")
         set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NXCOMPAT /DYNAMICBASE /INCREMENTAL:NO ")
 
@@ -84,17 +79,5 @@ macro(CommonSetup)
           message(FATAL_ERROR "Please specify '-D CMAKE_BUILD_TYPE=Debug' or Release on the cmake command line")
         endif()
     ENDIF()
-
-    ## TODO: we are not using Boost any more so below shouldn't be needed
-    ## common boost settings to make sure we are all on the same page
-    set(Boost_USE_STATIC_LIBS ON)
-    set(Boost_USE_MULTITHREADED ON)
-    #set(Boost_USE_STATIC_RUNTIME ON)
-
-    ## TODO: probably should set x64 explicitly
-    ## strip x64 from /machine:x64 from CMAKE_STATIC_LINKER_FLAGS and set in BUILD_PLATFORM
-    if(NOT "${CMAKE_STATIC_LINKER_FLAGS}" STREQUAL "")
-      string(SUBSTRING ${CMAKE_STATIC_LINKER_FLAGS} 9 -1 "BUILD_PLATFORM")
-    endif()
 
 endmacro(CommonSetup)

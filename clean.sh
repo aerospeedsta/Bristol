@@ -8,6 +8,5 @@ set -e
 set +x
 
 rm -rf build
-rm -rf cmake/output
 
 popd >/dev/null

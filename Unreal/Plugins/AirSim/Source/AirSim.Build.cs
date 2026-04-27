@@ -32,50 +32,8 @@ public class AirSim : ModuleRules
         get { return Path.Combine(AirSimPluginPath, "Dependencies"); }
     }
 
-    private enum CompileMode
-    {
-        HeaderOnlyNoRpc,
-        HeaderOnlyWithRpc,
-        CppCompileNoRpc,
-        CppCompileWithRpc
-    }
-
-    private void SetupCompileMode(CompileMode mode, ReadOnlyTargetRules Target)
-    {
-        LoadAirSimDependency(Target, "MavLinkCom", "MavLinkCom");
-
-        switch (mode)
-        {
-            case CompileMode.HeaderOnlyNoRpc:
-                PublicDefinitions.Add("AIRLIB_HEADER_ONLY=1");
-                PublicDefinitions.Add("AIRLIB_NO_RPC=1");
-                AddLibDependency("AirLib", Path.Combine(AirLibPath, "lib"), "AirLib", Target, false);
-                break;
-
-            case CompileMode.HeaderOnlyWithRpc:
-                PublicDefinitions.Add("AIRLIB_HEADER_ONLY=1");
-                AddLibDependency("AirLib", Path.Combine(AirLibPath, "lib"), "AirLib", Target, false);
-                LoadAirSimDependency(Target, "rpclib", "rpc");
-                break;
-
-            case CompileMode.CppCompileNoRpc:
-                LoadAirSimDependency(Target, "MavLinkCom", "MavLinkCom");
-                PublicDefinitions.Add("AIRLIB_NO_RPC=1");
-                break;
-
-            case CompileMode.CppCompileWithRpc:
-                LoadAirSimDependency(Target, "rpclib", "rpc");
-                break;
-
-            default:
-                throw new System.Exception("CompileMode specified in plugin's Build.cs file is not recognized");
-        }
-
-    }
-
     public AirSim(ReadOnlyTargetRules Target) : base(Target)
     {
-        //bEnforceIWYU = true; //to support 4.16
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
         bEnableExceptions = true;
@@ -83,16 +41,22 @@ public class AirSim : ModuleRules
         PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "ImageWrapper", "RenderCore", "RHI", "PhysicsCore", "AssetRegistry", "ChaosVehicles", "Landscape", "CinematicCamera" });
         PrivateDependencyModuleNames.AddRange(new string[] { "UMG", "Slate", "SlateCore", "RenderCore" });
 
-        //suppress VC++ proprietary warnings
+        PublicDefinitions.Add("MSGPACK_DISABLE_LEGACY_NIL=1");
+        PublicDefinitions.Add("ZENOHCXX_ZENOHC=1");
         PublicDefinitions.Add("_SCL_SECURE_NO_WARNINGS=1");
         PublicDefinitions.Add("_CRT_SECURE_NO_WARNINGS=1");
         PublicDefinitions.Add("HMD_MODULE_INCLUDED=0");
 
         PublicIncludePaths.Add(Path.Combine(AirLibPath, "include"));
         PublicIncludePaths.Add(Path.Combine(AirLibPath, "deps", "eigen3"));
-        AddOSLibDependencies(Target);
+        PublicIncludePaths.Add(Path.Combine(AirLibPath, "deps", "msgpack", "include"));
+        string nlohmannPath = RunMiseWhere("github:nlohmann/json");
+        PublicIncludePaths.Add(Path.Combine(nlohmannPath, "include"));
 
-        SetupCompileMode(CompileMode.CppCompileWithRpc, Target);
+        LoadAirSimDependency(Target, "MavLinkCom", "MavLinkCom");
+        AddLibDependency("AirLib", Path.Combine(AirLibPath, "lib"), "AirLib", Target, false);
+        AddZenohDependency(Target);
+        AddOSLibDependencies(Target);
     }
 
     private void AddOSLibDependencies(ReadOnlyTargetRules Target)
@@ -113,6 +77,37 @@ public class AirSim : ModuleRules
             PublicAdditionalLibraries.Add("stdc++");
             PublicAdditionalLibraries.Add("supc++");
         }
+    }
+
+    private string RunMiseWhere(string tool)
+    {
+        var proc = new System.Diagnostics.Process();
+        proc.StartInfo.FileName = "mise";
+        proc.StartInfo.Arguments = "where " + tool;
+        proc.StartInfo.RedirectStandardOutput = true;
+        proc.StartInfo.UseShellExecute = false;
+        proc.Start();
+        string output = proc.StandardOutput.ReadToEnd().Trim();
+        proc.WaitForExit();
+        return output;
+    }
+
+    private bool AddZenohDependency(ReadOnlyTargetRules Target)
+    {
+        bool isLibrarySupported = false;
+
+        if (Target.Platform == UnrealTargetPlatform.Mac || Target.Platform == UnrealTargetPlatform.Linux)
+        {
+            isLibrarySupported = true;
+            string zenohC = RunMiseWhere("github:eclipse-zenoh/zenoh-c");
+            string zenohCpp = RunMiseWhere("github:eclipse-zenoh/zenoh-cpp");
+            PublicAdditionalLibraries.Add(Path.Combine(zenohC, "lib", "libzenohc.a"));
+            PublicIncludePaths.Add(Path.Combine(zenohC, "include"));
+            PublicIncludePaths.Add(Path.Combine(zenohCpp, "include"));
+        }
+
+        PublicDefinitions.Add(string.Format("WITH_ZENOH_BINDING={0}", isLibrarySupported ? 1 : 0));
+        return isLibrarySupported;
     }
 
     static void CopyFileIfNewer(string srcFilePath, string destFolder)

@@ -1,6 +1,8 @@
 #include "ThreadUtils.hpp"
 #include "StrictMode.hpp"
+#ifdef _WIN32
 #include <codecvt>
+#endif
 
 #ifdef _WIN32
 #include <windows.h> // SetThreadPriority and GetCurrentThread

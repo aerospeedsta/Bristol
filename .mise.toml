@@ -1,0 +1,22 @@
+[tools]
+cmake = "latest"
+"github:eclipse-zenoh/zenoh-c" = "latest"
+"github:eclipse-zenoh/zenoh-cpp" = "latest"
+"github:nlohmann/json" = "latest"
+"pipx:conan" = "latest"
+python = "3.12"
+uv = "latest"
+
+[env]
+PROJECT_ROOT = "{{config_root}}"
+BUILD_PLATFORM = "arm64"
+MACOSX_DEPLOYMENT_TARGET = "14.0"
+
+[tasks.setup]
+description = "Download deps (Eigen, car assets)"
+run = "{{config_root}}/setup.sh"
+
+[tasks.build]
+description = "Build native libs (AirLib, MavLinkCom)"
+run = "{{config_root}}/build.sh"
+

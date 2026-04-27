@@ -1,0 +1,13 @@
+[tools]
+python = "3.12"
+
+[env]
+VIRTUAL_ENV = "{{config_root}}/.venv"
+
+[tasks.sync]
+description = "Sync Python dependencies"
+run = "uv sync"
+
+[tasks.test]
+description = "Test Python imports"
+run = "uv run python3 -c \"from airsim.client import VehicleClient, MultirotorClient, CarClient; print('OK')\""

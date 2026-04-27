@@ -45,7 +45,7 @@ void ASimModeCar::setupClockSpeed()
 
     current_clockspeed_ = getSettings().clock_speed;
 
-    //setup clock in PhysX
+    //setup clock in Chaos
     UAirBlueprintLib::setUnrealClockSpeed(this, current_clockspeed_);
     UAirBlueprintLib::LogMessageString("Clock Speed: ", std::to_string(current_clockspeed_), LogDebugLevel::Informational);
 }
@@ -95,7 +95,7 @@ void ASimModeCar::getExistingVehiclePawns(TArray<AActor*>& pawns) const
 
 bool ASimModeCar::isVehicleTypeSupported(const std::string& vehicle_type) const
 {
-    return ((vehicle_type == AirSimSettings::kVehicleTypePhysXCar) ||
+    return ((vehicle_type == AirSimSettings::kVehicleTypeChaosCar) ||
             (vehicle_type == AirSimSettings::kVehicleTypeArduRover));
 }
 

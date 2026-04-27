@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Runtime/Engine/Classes/Engine/ExponentialHeightFog.h"
+#include "Engine/ExponentialHeightFog.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Materials/MaterialParameterCollectionInstance.h"
 

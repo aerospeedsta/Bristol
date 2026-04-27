@@ -4,7 +4,7 @@
 #include "Components/SceneCaptureComponent2D.h"
 #include "Camera/CameraActor.h"
 #include "Materials/Material.h"
-#include "Runtime/Core/Public/PixelFormat.h"
+#include "PixelFormat.h"
 #include "common/ImageCaptureBase.hpp"
 #include "common/common_utils/Utils.hpp"
 #include "common/AirSimSettings.hpp"

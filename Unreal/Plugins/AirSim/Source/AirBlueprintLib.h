@@ -17,9 +17,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetStringLibrary.h"
 #include "Engine/World.h"
-#include "Runtime/Landscape/Classes/LandscapeComponent.h"
-#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
-#include "Runtime/Core/Public/HAL/FileManager.h"
+#include "LandscapeComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "HAL/FileManager.h"
 #include "common/AirSimSettings.hpp"
 #include <string>
 #include <regex>
@@ -58,7 +58,7 @@ public:
         FName name_n = FName(*name);
         for (TActorIterator<AActor> It(context->GetWorld(), T::StaticClass()); It; ++It) {
             AActor* Actor = *It;
-            if (!Actor->IsPendingKillPending() && (Actor->ActorHasTag(name_n) || Actor->GetName().Compare(name) == 0)) {
+            if (IsValid(Actor) && (Actor->ActorHasTag(name_n) || Actor->GetName().Compare(name) == 0)) {
                 return static_cast<T*>(Actor);
             }
         }

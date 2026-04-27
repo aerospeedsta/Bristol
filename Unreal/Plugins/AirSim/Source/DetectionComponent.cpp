@@ -4,7 +4,7 @@
 
 #include <Components/SceneCaptureComponent2D.h>
 #include <Components/StaticMeshComponent.h>
-#include <DrawDebugHelpers.h>
+#include "DrawDebugHelpers.h"
 #include <Engine/Engine.h>
 #include <Engine/StaticMesh.h>
 #include <Engine/TextureRenderTarget2D.h>

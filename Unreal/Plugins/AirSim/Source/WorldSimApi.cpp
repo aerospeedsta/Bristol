@@ -5,8 +5,8 @@
 #include "common/common_utils/Utils.hpp"
 #include "Weather/WeatherLib.h"
 #include "DrawDebugHelpers.h"
-#include "Runtime/Engine/Classes/Components/LineBatchComponent.h"
-#include "Runtime/Engine/Classes/Engine/Engine.h"
+#include "Components/LineBatchComponent.h"
+#include "Engine/Engine.h"
 #include "Misc/OutputDeviceNull.h"
 #include "ImageUtils.h"
 #include <cstdlib>
@@ -65,8 +65,7 @@ bool WorldSimApi::destroyObject(const std::string& object_name)
     UAirBlueprintLib::RunCommandOnGameThread([this, &object_name, &result]() {
         AActor* actor = UAirBlueprintLib::FindActor<AActor>(simmode_, FString(object_name.c_str()));
         if (actor) {
-            actor->Destroy();
-            result = actor->IsPendingKillPending();
+            result = actor->Destroy();
         }
         if (result)
             simmode_->scene_object_map.Remove(FString(object_name.c_str()));
@@ -790,7 +789,7 @@ bool WorldSimApi::testLineOfSightBetweenPoints(const msr::airlib::GeoPoint& lla1
                 color = FLinearColor{ 0, 1.0f, 0, 0.4f };
             }
 
-            simmode_->GetWorld()->PersistentLineBatcher->DrawLine(point1, point2, color, SDPG_World, 4, 999999);
+            simmode_->GetWorld()->GetLineBatcher(UWorld::ELineBatcherType::WorldPersistent)->DrawLine(point1, point2, color, SDPG_World, 4, 999999);
         }
     },
                                              true);

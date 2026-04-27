@@ -4,7 +4,9 @@
 #ifndef common_utils_FileSystem_hpp
 #define common_utils_FileSystem_hpp
 
+#ifdef _WIN32
 #include <codecvt>
+#endif
 #include <fstream>
 #include <string>
 #include "Utils.hpp"

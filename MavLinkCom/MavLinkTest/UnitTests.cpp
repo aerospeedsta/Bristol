@@ -15,7 +15,7 @@
 #include "Semaphore.hpp"
 
 STRICT_MODE_OFF
-#include "json.hpp"
+#include <nlohmann/json.hpp>
 STRICT_MODE_ON
 
 #include <iostream>

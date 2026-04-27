@@ -150,14 +150,11 @@ msr::airlib::ProjectionMatrix APIPCamera::getProjectionMatrix(const APIPCamera::
             const float NearPlane = 0;
             const float FarPlane = WORLD_MAX / 8.0f;
 
-            const float ZScale = 1.0f / (FarPlane - NearPlane);
-            const float ZOffset = -NearPlane;
-
             proj_mat_transpose = FReversedZOrthoMatrix(
                 OrthoWidth,
                 OrthoHeight,
-                ZScale,
-                ZOffset);
+                NearPlane,
+                FarPlane);
         }
         else {
             float halfFov = Utils::degreesToRadians(capture->FOVAngle) / 2;

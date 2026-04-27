@@ -6,7 +6,9 @@
 #endif
 
 #include "FileSystem.hpp"
+#ifdef _WIN32
 #include <codecvt>
+#endif
 #include <fstream>
 
 #ifdef _WIN32

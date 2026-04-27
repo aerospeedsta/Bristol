@@ -1,55 +1,82 @@
-# Welcome to Colosseum, a successor of [AirSim](https://github.com/microsoft/AirSim)
-  
-## Build Status
-[![Ubuntu Build](https://github.com/CodexLabsLLC/Colosseum/actions/workflows/test_ubuntu.yml/badge.svg)](https://github.com/CodexLabsLLC/Colosseum/actions/workflows/test_ubuntu.yml)
-[![MacOS Build](https://github.com/CodexLabsLLC/Colosseum/actions/workflows/test_macos.yml/badge.svg)](https://github.com/CodexLabsLLC/Colosseum/actions/workflows/test_macos.yml)
-[![Windows Build](https://github.com/CodexLabsLLC/Colosseum/actions/workflows/test_windows.yml/badge.svg)](https://github.com/CodexLabsLLC/Colosseum/actions/workflows/test_windows.yml)
+# Bristol
 
-[![](https://dcbadge.vercel.app/api/server/y9ZJKKKn8J)](https://discord.gg/y9ZJKKKn8J)
-  
-  
-## IMPORTANT ANNOUNCEMENT
-Moving forward, we are now using Unreal Engine 5 version 5.03 or greater! If you
-want to use UE4.27, you can use the branch `ue4.27`.
-  
-## Unreal Engine Version for Main Branch
-The main branch of this repository **only** supports **Unreal Engine 5.6**! Please see our other branches
-for other versions that we support.
-  
-## Currently Supported Operating Systems
-Below are the list of officially supported Operating Systems, with full Unreal Engine support:
-### Windows
-- Windows 10 (Latest)
+Autonomous vehicle simulator for macOS (Apple Silicon). Fork of AirSim/Colosseum with Zenoh-based RPC, UE 5.7 support, and modernized build tooling.
 
-### Linux
-- Ubuntu 20.04 (use branch `ubuntu-20.04`)
-- Ubuntu 22.04
-- Ubuntu 24.04
-  
-**NOTE** Ubuntu 22.04 is not currently supported due to Vulkan support. If this changes, we will notify you here. If you want to use Colosseum on 22.04, we highly recommend that you use Docker.
+## Status
 
-### MacOS (Experimental)
-- MacOS Ventura (14)
-- MacOS Monterey (13)
-  
-**NOTE** MacOS support is highly experimental and may be dropped in future releases. This is because Apple continually changes their build tools and doesn't like 3rd party developers in general. There are ongoing discussions to remove this support.
+Experimental. The core simulation stack (physics, sensors, flight controllers, MAVLink) runs on macOS arm64. The UE 5.7 plugin builds and links. Python API works via Zenoh. Godot integration is planned.
 
-  
-## Introduction
-  
-Colosseum is a simulator for robotic, autonomous systems, built on [Unreal Engine](https://www.unrealengine.com/) (we now also have an experimental [Unity](https://unity3d.com/) release). It is open-source, cross platform, and supports software-in-the-loop simulation with popular flight controllers such as PX4 & ArduPilot and hardware-in-loop with PX4 for physically and visually realistic simulations. It is developed as an Unreal plugin that can simply be dropped into any Unreal environment. Similarly, we have an experimental release for a Unity plugin.
-  
-This is a fork of the AirSim repository, which Microsoft decided to shutdown in July of 2022. This fork serves as a waypoint to building a new and better simulation platform.
-  
-## Docs
-Please find the docs [here](https://codexlabsllc.github.io/Colosseum/)
+**What works:**
+- Native libs: AirLib, MavLinkCom (cmake + Apple Clang)
+- UE 5.7 plugin: BlocksV2Editor builds and runs on arm64
+- Vehicle models: SimpleFlight, PX4/ArduPilot (via MAVLink), Chaos Car
+- RPC layer: Zenoh get/queryable (replaces rpclib)
+- Python client: API via `eclipse-zenoh` + msgpack
 
-## Join the Community
-We have decided to create a Discord channel to better allow for community engagement. Join here: [Colosseum Robotics Discord](https://discord.gg/y9ZJKKKn8J).
-  
+**What's partial:**
+- Godot engine port — not started
+- PX4 SITL on macOS — needs Docker or manual setup
+- Headless mode for ML training — not implemented
+- Recording / deterministic replay — not implemented
+
+## Quick start
+
+```bash
+# Install toolchain
+mise install
+
+# Download C++ deps (Eigen, car assets)
+./setup.sh
+
+# Build native libs (AirLib, MavLinkCom)
+./build.sh
+
+# Install Python client
+cd PythonClient && uv sync
+
+# Generate UE Xcode project
+Unreal/Environments/BlocksV2/GenerateProjectFiles.sh "/Users/Shared/Epic Games/UE_5.7"
+
+# Open Xcode workspace and build
+open "Unreal/Environments/BlocksV2/BlocksV2 (Mac).xcworkspace"
+```
+
+## Dependencies
+
+| Dep | Source | Managed by |
+|---|---|---|
+| cmake, python, uv | — | `mise` |
+| zenoh-c, zenoh-cpp | GitHub releases | `mise github:` |
+| nlohmann/json | GitHub releases | `mise github:` |
+| Eigen | ConanCenter | `setup.sh` → `conan install` |
+| msgpack-c | Vendored (AirLib/deps/msgpack/) | — |
+| UE 5.7 | Epic Games Launcher | Manual |
+
+## Architecture
+
+```
+AirLib/              → Standalone C++ simulation SDK (physics, sensors, flight controllers)
+  ├── MavLinkCom/    → MAVLink transport for PX4 / ArduPilot
+  ├── ZenohRpc       → RPC layer (replaces rpclib)
+  └── deps/          → Eigen, msgpack-c
+
+Unreal/Plugins/AirSim → UE 5.7 plugin (render layer)
+PythonClient/         → Python API via zenoh + msgpack
+```
+
+Clients communicate with the simulator via Zenoh get/queryable RPC over msgpack-serialized payloads.
+
+## Vehicle types
+
+- SimpleFlight (built-in flight controller, no external firmware needed)
+- PX4 Multirotor (via MAVLink)
+- ArduPilot Copter / Rover (via MAVLink)
+- Chaos Car
 
 ## License
 
-This project is released under the MIT License. Please review the [License file](LICENSE) for more details.
+Bristol is a fork of [AirSim](https://github.com/microsoft/AirSim) (MIT) and [Colosseum](https://github.com/CodexLabsLLC/Colosseum) (MIT).
 
+Copyright (c) 2026 Bristol contributors
 
+MIT License — see [LICENSE](LICENSE) for details.

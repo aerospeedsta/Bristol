@@ -19,7 +19,7 @@
 #include <map>
 #include <ctime>
 STRICT_MODE_OFF
-#include "json.hpp"
+#include <nlohmann/json.hpp>
 STRICT_MODE_ON
 #include "UnitTests.h"
 
@@ -1030,8 +1030,7 @@ std::string findPixhawk()
             if (info.pid == pixhawkFMUV4ProductId || info.pid == pixhawkFMUV2ProductId || info.pid == pixhawkFMUV2OldBootloaderProductId || info.pid == pixhawkFMUV5ProductId) {
                 printf("Auto Selecting COM port: %S\n", info.displayName.c_str());
 
-                std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-                std::string portName_str = converter.to_bytes(info.portName);
+                std::string portName_str(info.portName.begin(), info.portName.end());
                 return portName_str;
             }
         }

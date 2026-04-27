@@ -6,7 +6,7 @@
 #include "common/Common.hpp"
 #include "NedTransform.h"
 #include "DrawDebugHelpers.h"
-#include "Runtime/Core/Public/Async/ParallelFor.h"
+#include "Async/ParallelFor.h"
 
 // ctor
 UnrealLidarSensor::UnrealLidarSensor(const AirSimSettings::LidarSetting& setting,
@@ -98,7 +98,7 @@ void UnrealLidarSensor::getPointCloud(const msr::airlib::Pose& lidar_pose, const
         }
     });
 
-    // erase–remove idiom to handle non-valid elements
+    // eraseï¿½remove idiom to handle non-valid elements
     point_cloud.erase(std::remove(point_cloud.begin(), point_cloud.end(), FLT_MAX), point_cloud.end());
     segmentation_cloud.erase(std::remove(segmentation_cloud.begin(), segmentation_cloud.end(), -1), segmentation_cloud.end());
 
